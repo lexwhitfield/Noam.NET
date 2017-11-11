@@ -1,0 +1,402 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+  <!-- EF Runtime content -->
+  <edmx:Runtime>
+    <!-- SSDL content -->
+    <edmx:StorageModels>
+    <Schema Namespace="NoamModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+        <EntityType Name="Hashtag">
+          <Key>
+            <PropertyRef Name="HashtagGuid" />
+          </Key>
+          <Property Name="HashtagGuid" Type="uniqueidentifier" Nullable="false" />
+          <Property Name="HashtagValue" Type="nvarchar" MaxLength="128" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Mention">
+          <Key>
+            <PropertyRef Name="MentionId" />
+          </Key>
+          <Property Name="MentionId" Type="bigint" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="TweetId" Type="bigint" Nullable="false" />
+          <Property Name="UserId" Type="bigint" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Tweet">
+          <Key>
+            <PropertyRef Name="TweetId" />
+          </Key>
+          <Property Name="TweetId" Type="bigint" Nullable="false" />
+          <Property Name="UserId" Type="bigint" Nullable="false" />
+          <Property Name="CreatedDate" Type="datetime" Nullable="false" />
+          <Property Name="TweetText" Type="nvarchar" MaxLength="300" Nullable="false" />
+          <Property Name="IsQuoteStatus" Type="bit" Nullable="false" />
+          <Property Name="IsRetweet" Type="bit" Nullable="false" />
+          <Property Name="ReplyToTweetId" Type="bigint" />
+        </EntityType>
+        <EntityType Name="TweetHashtag">
+          <Key>
+            <PropertyRef Name="TweetHashtagId" />
+          </Key>
+          <Property Name="TweetHashtagId" Type="bigint" Nullable="false" />
+          <Property Name="TweetId" Type="bigint" Nullable="false" />
+          <Property Name="HashtagGuid" Type="uniqueidentifier" Nullable="false" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="bigint" Nullable="false" />
+          <Property Name="ScreenName" Type="nvarchar" MaxLength="128" Nullable="false" />
+          <Property Name="CreatedDate" Type="datetime" Nullable="false" />
+          <Property Name="Description" Type="nvarchar" MaxLength="1024" />
+          <Property Name="IsGeoEnabled" Type="bit" Nullable="false" />
+          <Property Name="IsProtected" Type="bit" Nullable="false" />
+          <Property Name="IsTranslator" Type="bit" Nullable="false" />
+          <Property Name="IsVerified" Type="bit" Nullable="false" />
+          <Property Name="Language" Type="nvarchar" MaxLength="16" Nullable="false" />
+          <Property Name="Location" Type="nvarchar" MaxLength="128" />
+          <Property Name="Timezone" Type="nvarchar" MaxLength="128" />
+          <Property Name="Url" Type="nvarchar" MaxLength="256" />
+        </EntityType>
+        <Association Name="FK_Hashtag_Hashtag">
+          <End Role="Hashtag" Type="Self.Hashtag" Multiplicity="1" />
+          <End Role="Hashtag1" Type="Self.Hashtag" Multiplicity="0..1" />
+          <ReferentialConstraint>
+            <Principal Role="Hashtag">
+              <PropertyRef Name="HashtagGuid" />
+            </Principal>
+            <Dependent Role="Hashtag1">
+              <PropertyRef Name="HashtagGuid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Mention_Tweet">
+          <End Role="Tweet" Type="Self.Tweet" Multiplicity="1" />
+          <End Role="Mention" Type="Self.Mention" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tweet">
+              <PropertyRef Name="TweetId" />
+            </Principal>
+            <Dependent Role="Mention">
+              <PropertyRef Name="TweetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Mention_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Mention" Type="Self.Mention" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Mention">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tweet_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Tweet" Type="Self.Tweet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Tweet">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TweetHashtag_Hashtag">
+          <End Role="Hashtag" Type="Self.Hashtag" Multiplicity="1" />
+          <End Role="TweetHashtag" Type="Self.TweetHashtag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Hashtag">
+              <PropertyRef Name="HashtagGuid" />
+            </Principal>
+            <Dependent Role="TweetHashtag">
+              <PropertyRef Name="HashtagGuid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TweetHashtag_Tweet">
+          <End Role="Tweet" Type="Self.Tweet" Multiplicity="1" />
+          <End Role="TweetHashtag" Type="Self.TweetHashtag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tweet">
+              <PropertyRef Name="TweetId" />
+            </Principal>
+            <Dependent Role="TweetHashtag">
+              <PropertyRef Name="TweetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="NoamModelStoreContainer">
+          <EntitySet Name="Hashtag" EntityType="Self.Hashtag" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Mention" EntityType="Self.Mention" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="Tweet" EntityType="Self.Tweet" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="TweetHashtag" EntityType="Self.TweetHashtag" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="User" EntityType="Self.User" Schema="dbo" store:Type="Tables" />
+          <AssociationSet Name="FK_Hashtag_Hashtag" Association="Self.FK_Hashtag_Hashtag">
+            <End Role="Hashtag" EntitySet="Hashtag" />
+            <End Role="Hashtag1" EntitySet="Hashtag" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Mention_Tweet" Association="Self.FK_Mention_Tweet">
+            <End Role="Tweet" EntitySet="Tweet" />
+            <End Role="Mention" EntitySet="Mention" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Mention_User" Association="Self.FK_Mention_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Mention" EntitySet="Mention" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tweet_User" Association="Self.FK_Tweet_User">
+            <End Role="User" EntitySet="User" />
+            <End Role="Tweet" EntitySet="Tweet" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TweetHashtag_Hashtag" Association="Self.FK_TweetHashtag_Hashtag">
+            <End Role="Hashtag" EntitySet="Hashtag" />
+            <End Role="TweetHashtag" EntitySet="TweetHashtag" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TweetHashtag_Tweet" Association="Self.FK_TweetHashtag_Tweet">
+            <End Role="Tweet" EntitySet="Tweet" />
+            <End Role="TweetHashtag" EntitySet="TweetHashtag" />
+          </AssociationSet>
+        </EntityContainer>
+      </Schema></edmx:StorageModels>
+    <!-- CSDL content -->
+    <edmx:ConceptualModels>
+      <Schema Namespace="NoamModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+        <EntityType Name="Mention">
+          <Key>
+            <PropertyRef Name="MentionId" />
+          </Key>
+          <Property Name="MentionId" Type="Int64" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="TweetId" Type="Int64" Nullable="false" />
+          <Property Name="UserId" Type="Int64" Nullable="false" />
+          <NavigationProperty Name="User" Relationship="Self.FK_Mention_User" FromRole="Mention" ToRole="User" />
+          <NavigationProperty Name="Tweet" Relationship="NoamModel.FK_Mention_Tweet" FromRole="Mention" ToRole="Tweet" />
+        </EntityType>
+        <EntityType Name="User">
+          <Key>
+            <PropertyRef Name="UserId" />
+          </Key>
+          <Property Name="UserId" Type="Int64" Nullable="false" />
+          <Property Name="ScreenName" Type="String" MaxLength="128" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="Description" Type="String" MaxLength="1024" FixedLength="false" Unicode="true" />
+          <Property Name="IsGeoEnabled" Type="Boolean" Nullable="false" />
+          <Property Name="IsProtected" Type="Boolean" Nullable="false" />
+          <Property Name="IsTranslator" Type="Boolean" Nullable="false" />
+          <Property Name="IsVerified" Type="Boolean" Nullable="false" />
+          <Property Name="Language" Type="String" MaxLength="16" FixedLength="false" Unicode="true" Nullable="false" />
+          <Property Name="Location" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Timezone" Type="String" MaxLength="128" FixedLength="false" Unicode="true" />
+          <Property Name="Url" Type="String" MaxLength="256" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="Mentions" Relationship="Self.FK_Mention_User" FromRole="User" ToRole="Mention" />
+          <NavigationProperty Name="Tweets" Relationship="NoamModel.FK_Tweet_User" FromRole="User" ToRole="Tweet" />
+        </EntityType>
+        <Association Name="FK_Mention_User">
+          <End Role="User" Type="Self.User" Multiplicity="1" />
+          <End Role="Mention" Type="Self.Mention" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Mention">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityContainer Name="NoamEntities" annotation:LazyLoadingEnabled="true">
+          <EntitySet Name="Mentions" EntityType="Self.Mention" />
+          <EntitySet Name="Users" EntityType="Self.User" />
+          <AssociationSet Name="FK_Mention_User" Association="Self.FK_Mention_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Mention" EntitySet="Mentions" />
+          </AssociationSet>
+          <EntitySet Name="Tweets" EntityType="NoamModel.Tweet" />
+          <AssociationSet Name="FK_Mention_Tweet" Association="NoamModel.FK_Mention_Tweet">
+            <End Role="Tweet" EntitySet="Tweets" />
+            <End Role="Mention" EntitySet="Mentions" />
+          </AssociationSet>
+          <AssociationSet Name="FK_Tweet_User" Association="NoamModel.FK_Tweet_User">
+            <End Role="User" EntitySet="Users" />
+            <End Role="Tweet" EntitySet="Tweets" />
+          </AssociationSet>
+          <EntitySet Name="Hashtags" EntityType="NoamModel.Hashtag" />
+          <EntitySet Name="TweetHashtags" EntityType="NoamModel.TweetHashtag" />
+          <AssociationSet Name="FK_TweetHashtag_Hashtag" Association="NoamModel.FK_TweetHashtag_Hashtag">
+            <End Role="Hashtag" EntitySet="Hashtags" />
+            <End Role="TweetHashtag" EntitySet="TweetHashtags" />
+          </AssociationSet>
+          <AssociationSet Name="FK_TweetHashtag_Tweet" Association="NoamModel.FK_TweetHashtag_Tweet">
+            <End Role="Tweet" EntitySet="Tweets" />
+            <End Role="TweetHashtag" EntitySet="TweetHashtags" />
+          </AssociationSet>
+          </EntityContainer>
+        <EntityType Name="Tweet">
+          <Key>
+            <PropertyRef Name="TweetId" />
+          </Key>
+          <Property Name="TweetId" Type="Int64" Nullable="false" />
+          <Property Name="UserId" Type="Int64" Nullable="false" />
+          <Property Name="CreatedDate" Type="DateTime" Nullable="false" Precision="3" />
+          <Property Name="TweetText" Type="String" Nullable="false" MaxLength="300" FixedLength="false" Unicode="true" />
+          <Property Name="IsQuoteStatus" Type="Boolean" Nullable="false" />
+          <Property Name="IsRetweet" Type="Boolean" Nullable="false" />
+          <Property Name="ReplyToTweetId" Type="Int64" />
+          <NavigationProperty Name="Mentions" Relationship="NoamModel.FK_Mention_Tweet" FromRole="Tweet" ToRole="Mention" />
+          <NavigationProperty Name="User" Relationship="NoamModel.FK_Tweet_User" FromRole="Tweet" ToRole="User" />
+          <NavigationProperty Name="TweetHashtags" Relationship="NoamModel.FK_TweetHashtag_Tweet" FromRole="Tweet" ToRole="TweetHashtag" />
+        </EntityType>
+        <Association Name="FK_Mention_Tweet">
+          <End Type="NoamModel.Tweet" Role="Tweet" Multiplicity="1" />
+          <End Type="NoamModel.Mention" Role="Mention" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tweet">
+              <PropertyRef Name="TweetId" />
+            </Principal>
+            <Dependent Role="Mention">
+              <PropertyRef Name="TweetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_Tweet_User">
+          <End Type="NoamModel.User" Role="User" Multiplicity="1" />
+          <End Type="NoamModel.Tweet" Role="Tweet" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="User">
+              <PropertyRef Name="UserId" />
+            </Principal>
+            <Dependent Role="Tweet">
+              <PropertyRef Name="UserId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <EntityType Name="Hashtag">
+          <Key>
+            <PropertyRef Name="HashtagGuid" />
+          </Key>
+          <Property Name="HashtagGuid" Type="Guid" Nullable="false" />
+          <Property Name="HashtagValue" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+          <NavigationProperty Name="TweetHashtags" Relationship="NoamModel.FK_TweetHashtag_Hashtag" FromRole="Hashtag" ToRole="TweetHashtag" />
+        </EntityType>
+        <EntityType Name="TweetHashtag">
+          <Key>
+            <PropertyRef Name="TweetHashtagId" />
+          </Key>
+          <Property Name="TweetHashtagId" Type="Int64" Nullable="false" />
+          <Property Name="TweetId" Type="Int64" Nullable="false" />
+          <Property Name="HashtagGuid" Type="Guid" Nullable="false" />
+          <NavigationProperty Name="Hashtag" Relationship="NoamModel.FK_TweetHashtag_Hashtag" FromRole="TweetHashtag" ToRole="Hashtag" />
+          <NavigationProperty Name="Tweet" Relationship="NoamModel.FK_TweetHashtag_Tweet" FromRole="TweetHashtag" ToRole="Tweet" />
+        </EntityType>
+        <Association Name="FK_TweetHashtag_Hashtag">
+          <End Type="NoamModel.Hashtag" Role="Hashtag" Multiplicity="1" />
+          <End Type="NoamModel.TweetHashtag" Role="TweetHashtag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Hashtag">
+              <PropertyRef Name="HashtagGuid" />
+            </Principal>
+            <Dependent Role="TweetHashtag">
+              <PropertyRef Name="HashtagGuid" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        <Association Name="FK_TweetHashtag_Tweet">
+          <End Type="NoamModel.Tweet" Role="Tweet" Multiplicity="1" />
+          <End Type="NoamModel.TweetHashtag" Role="TweetHashtag" Multiplicity="*" />
+          <ReferentialConstraint>
+            <Principal Role="Tweet">
+              <PropertyRef Name="TweetId" />
+            </Principal>
+            <Dependent Role="TweetHashtag">
+              <PropertyRef Name="TweetId" />
+            </Dependent>
+          </ReferentialConstraint>
+        </Association>
+        </Schema>
+    </edmx:ConceptualModels>
+    <!-- C-S mapping content -->
+    <edmx:Mappings>
+      <Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+        <EntityContainerMapping StorageEntityContainer="NoamModelStoreContainer" CdmEntityContainer="NoamEntities">
+          <EntitySetMapping Name="Mentions">
+            <EntityTypeMapping TypeName="NoamModel.Mention">
+              <MappingFragment StoreEntitySet="Mention">
+                <ScalarProperty Name="MentionId" ColumnName="MentionId" />
+                <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Users">
+            <EntityTypeMapping TypeName="NoamModel.User">
+              <MappingFragment StoreEntitySet="User">
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="ScreenName" ColumnName="ScreenName" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="Description" ColumnName="Description" />
+                <ScalarProperty Name="IsGeoEnabled" ColumnName="IsGeoEnabled" />
+                <ScalarProperty Name="IsProtected" ColumnName="IsProtected" />
+                <ScalarProperty Name="IsTranslator" ColumnName="IsTranslator" />
+                <ScalarProperty Name="IsVerified" ColumnName="IsVerified" />
+                <ScalarProperty Name="Language" ColumnName="Language" />
+                <ScalarProperty Name="Location" ColumnName="Location" />
+                <ScalarProperty Name="Timezone" ColumnName="Timezone" />
+                <ScalarProperty Name="Url" ColumnName="Url" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Tweets">
+            <EntityTypeMapping TypeName="NoamModel.Tweet">
+              <MappingFragment StoreEntitySet="Tweet">
+                <ScalarProperty Name="ReplyToTweetId" ColumnName="ReplyToTweetId" />
+                <ScalarProperty Name="IsRetweet" ColumnName="IsRetweet" />
+                <ScalarProperty Name="IsQuoteStatus" ColumnName="IsQuoteStatus" />
+                <ScalarProperty Name="TweetText" ColumnName="TweetText" />
+                <ScalarProperty Name="CreatedDate" ColumnName="CreatedDate" />
+                <ScalarProperty Name="UserId" ColumnName="UserId" />
+                <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="Hashtags">
+            <EntityTypeMapping TypeName="NoamModel.Hashtag">
+              <MappingFragment StoreEntitySet="Hashtag">
+                <ScalarProperty Name="HashtagValue" ColumnName="HashtagValue" />
+                <ScalarProperty Name="HashtagGuid" ColumnName="HashtagGuid" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="TweetHashtags">
+            <EntityTypeMapping TypeName="NoamModel.TweetHashtag">
+              <MappingFragment StoreEntitySet="TweetHashtag">
+                <ScalarProperty Name="HashtagGuid" ColumnName="HashtagGuid" />
+                <ScalarProperty Name="TweetId" ColumnName="TweetId" />
+                <ScalarProperty Name="TweetHashtagId" ColumnName="TweetHashtagId" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+        </EntityContainerMapping>
+      </Mapping>
+    </edmx:Mappings>
+  </edmx:Runtime>
+  <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <Connection>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+      </DesignerInfoPropertySet>
+    </Connection>
+    <Options>
+      <DesignerInfoPropertySet>
+        <DesignerProperty Name="ValidateOnBuild" Value="true" />
+        <DesignerProperty Name="EnablePluralization" Value="true" />
+        <DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+        <DesignerProperty Name="UseLegacyProvider" Value="false" />
+        <DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+      </DesignerInfoPropertySet>
+    </Options>
+    <!-- Diagram content (shape and connector positions) -->
+    <Diagrams></Diagrams>
+  </Designer>
+</edmx:Edmx>

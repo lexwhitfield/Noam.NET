@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+ <!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+  <edmx:Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+    <!-- Diagram content (shape and connector positions) -->
+    <edmx:Diagrams>
+      <Diagram DiagramId="b4c962bac71445b89cf11679c27b89ea" Name="Diagram1">
+        <EntityTypeShape EntityType="NoamModel.Mention" Width="1.5" PointX="5.25" PointY="4.125" IsExpanded="true" />
+        <EntityTypeShape EntityType="NoamModel.User" Width="1.5" PointX="0.75" PointY="2.125" IsExpanded="true" />
+        <AssociationConnector Association="NoamModel.FK_Mention_User" ManuallyRouted="false" />
+        <EntityTypeShape EntityType="NoamModel.Tweet" Width="1.5" PointX="3" PointY="2.5" />
+        <AssociationConnector Association="NoamModel.FK_Mention_Tweet" />
+        <AssociationConnector Association="NoamModel.FK_Tweet_User" />
+        <EntityTypeShape EntityType="NoamModel.Hashtag" Width="1.5" PointX="5.375" PointY="0.875" />
+        <EntityTypeShape EntityType="NoamModel.TweetHashtag" Width="1.5" PointX="7.625" PointY="2.25" />
+        <AssociationConnector Association="NoamModel.FK_TweetHashtag_Hashtag" />
+        <AssociationConnector Association="NoamModel.FK_TweetHashtag_Tweet" />
+        </Diagram>
+    </edmx:Diagrams>
+  </edmx:Designer>
+</edmx:Edmx>

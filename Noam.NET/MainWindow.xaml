@@ -5,8 +5,28 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Noam.NET"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
+        Title="MainWindow" Height="381.143" Width="838.664">
     <Grid>
-        
+        <TabControl Margin="10,38,10,10">
+            <TabItem Header="Tweets">
+                <Grid Background="#FFE5E5E5">
+                    <ListBox x:Name="tweetList" Margin="3"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Retweets">
+                <Grid Background="#FFE5E5E5">
+                    <ListBox x:Name="retweetList" Margin="3"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Replies">
+                <Grid Background="#FFE5E5E5">
+                    <ListBox x:Name="replyList" Margin="3"/>
+                </Grid>
+            </TabItem>
+
+        </TabControl>
+        <TextBox x:Name="usernameTextBox" Height="23" Margin="10,10,90,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <Button x:Name="getTweetsButton" Content="Get Tweets" Margin="0,10,10,0" Click="Button_Click" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
+
     </Grid>
 </Window>
