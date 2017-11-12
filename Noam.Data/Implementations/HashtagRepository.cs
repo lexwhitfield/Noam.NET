@@ -35,7 +35,16 @@ namespace Noam.Data.Implementations
         {
             hashtagValue = hashtagValue.ToLower();
 
-            hashtag = NoamContext.Hashtags.First(o => o.HashtagValue.ToLower().Equals(hashtagValue));
+            var hashtags = (from a in NoamContext.Hashtags where a.HashtagValue == hashtagValue select a);
+
+            if (hashtags.Any())
+            {
+                hashtag = hashtags.First();
+            }
+            else
+            {
+                hashtag = null;
+            }
 
             return (hashtag == null) ? false : true;
         }

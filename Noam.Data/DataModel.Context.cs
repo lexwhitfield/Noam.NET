@@ -26,9 +26,9 @@ namespace Noam.Data
         }
     
         public virtual DbSet<Mention> Mentions { get; set; }
-        public virtual DbSet<User> Users { get; set; }
         public virtual DbSet<Tweet> Tweets { get; set; }
         public virtual DbSet<Hashtag> Hashtags { get; set; }
         public virtual DbSet<TweetHashtag> TweetHashtags { get; set; }
+        public virtual DbSet<User> Users { get; set; }
     }
 }

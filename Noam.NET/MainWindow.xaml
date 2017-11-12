@@ -5,9 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Noam.NET"
         mc:Ignorable="d"
-        Title="MainWindow" Height="381.143" Width="838.664">
+        Title="MainWindow" Height="536.143" Width="838.664">
     <Grid>
-        <TabControl Margin="10,38,10,10">
+        <TextBox x:Name="usernameTextBox" Height="23" Margin="10,10,90,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <Button x:Name="getTweetsButton" Content="Get Tweets" Margin="0,10,10,0" Click="Button_Click" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
+        <ProgressBar Margin="10,38,10,0" Height="20" VerticalAlignment="Top" x:Name="progressBar"/>
+        <TabControl Margin="10,63,10,10">
             <TabItem Header="Tweets">
                 <Grid Background="#FFE5E5E5">
                     <ListBox x:Name="tweetList" Margin="3"/>
@@ -23,10 +26,63 @@
                     <ListBox x:Name="replyList" Margin="3"/>
                 </Grid>
             </TabItem>
+            <TabItem Header="Mentions">
+                <Grid Background="#FFE5E5E5">
+                    <DataGrid x:Name="mentionGrid" Margin="3">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Header="Count" Width="100" Binding="{Binding Key}" />
+                            <DataGridTextColumn Header="ScreenName" Width="200" Binding="{Binding Value}" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Users">
+                <Grid Background="#FFE5E5E5" Margin="0,20,0,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*" />
+                        <ColumnDefinition Width="3*" />
+                    </Grid.ColumnDefinitions>
+                    <DataGrid x:Name="userGrid" Margin="3" SelectionMode="Single" SelectionUnit="FullRow" Grid.Column="0" SelectionChanged="userGrid_SelectionChanged" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding ScreenName}" Header="Screen Name" Width="120" />
+                            <DataGridTextColumn Binding="{Binding FullName}" Header="Full Name" Width="350" />
+                            <DataGridTextColumn Binding="{Binding MentionCount}" Header="Mentions" Width="75" />
+                            <DataGridTextColumn Binding="{Binding TweetCount}" Header="Tweets" Width="75" />
+                            <DataGridCheckBoxColumn Binding="{Binding IsVerified}" Header="Vfy" />
+                            <DataGridTemplateColumn Header="Get">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <Button Click="GetTWeetsForUser_Button_Click">Get Tweets</Button>
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <CheckBox x:Name="verifiedUserCheckBox" Content="Verified" HorizontalAlignment="Right" Margin="0,-20,0,0" VerticalAlignment="Top" Width="69" Unchecked="CheckBox_Unchecked" Checked="CheckBox_Checked" Grid.ColumnSpan="2" Height="17" Grid.Column="1"/>
+
+                  
+                        <local:DisplayUserControl x:Name="displayUserControl" Height="150" HorizontalAlignment="Stretch" VerticalAlignment="Top" Grid.Column="1"></local:DisplayUserControl>
+
+                    <DataGrid x:Name="userTweetGrid" Grid.Column="1" Margin="3,150,3,3" AutoGenerateColumns="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding CreatedDate}" Header="Date" Width="150" />
+                            <DataGridTextColumn Binding="{Binding TweetText}" Header="Text" />
+                            <DataGridCheckBoxColumn Binding="{Binding IsQuoteStatus}" Header="Qt" />
+                            <DataGridCheckBoxColumn Binding="{Binding IsRetweet}" Header="Rt" />
+                        </DataGrid.Columns>
+                    </DataGrid>
+
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Hashtags">
+                <Grid Background="#FFE5E5E5">
+                    <DataGrid x:Name="hashtagGrid" Margin="3"/>
+                </Grid>
+            </TabItem>
 
         </TabControl>
-        <TextBox x:Name="usernameTextBox" Height="23" Margin="10,10,90,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <Button x:Name="getTweetsButton" Content="Get Tweets" Margin="0,10,10,0" Click="Button_Click" Height="22" VerticalAlignment="Top" HorizontalAlignment="Right" Width="75"/>
+        
 
     </Grid>
 </Window>

@@ -1,20 +1,17 @@
-﻿using Noam.Data;
-using Noam.Data.Implementations;
+﻿
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
+
 using TweetSharp;
+
+using Noam.Data;
+using Noam.Data.ViewModels;
+using Noam.Data.Implementations;
 
 namespace Noam.NET
 {
@@ -29,24 +26,71 @@ namespace Noam.NET
         private const string accessSecret = "imMBxXUweuBLere0tVkPmcmAQAcK6HvfU6lztwXwKSebA";
 
         TwitterService service = new TwitterService(customerKey, customerSecret, accessToken, accessSecret);
-        UnitOfWork unitOfWork = new UnitOfWork(new Data.NoamEntities());
+        UnitOfWork unitOfWork = new UnitOfWork(new NoamEntities());
+
+        private readonly BackgroundWorker worker = new BackgroundWorker();
+
+        Dictionary<string, int> mentionCounter = new Dictionary<string, int>();
+        List<UserViewModel> mainUserList = new List<UserViewModel>();
 
         public MainWindow()
         {
             InitializeComponent();
+
+            UpdateMainUserList();
+        }
+
+        private void UpdateMainUserList()
+        {
+            mainUserList.Clear();
+
+            foreach (var user in unitOfWork.Users.All())
+            {
+                mainUserList.Add(new UserViewModel(user));
+            }
+
+            if (verifiedUserCheckBox.IsChecked ?? false)
+            {
+                mainUserList = (from a in mainUserList where a.IsVerified == true select a).ToList();
+            }
+
+            mainUserList = mainUserList.OrderByDescending(o => o.MentionCount).ToList();
+
+            userGrid.ItemsSource = mainUserList.ToArray();
         }
 
         private void GetAllTweetsForUser(string username)
         {
-            tweetList.Items.Clear();
-            retweetList.Items.Clear();
-            replyList.Items.Clear();
+            Dispatcher.BeginInvoke(new Action(delegate
+            {
+                tweetList.Items.Clear();
+                retweetList.Items.Clear();
+                replyList.Items.Clear();
+                mentionCounter.Clear();
+            }));
 
             var currentTweets = service.ListTweetsOnUserTimeline(new ListTweetsOnUserTimelineOptions
             {
                 ScreenName = username,
-                Count = 100
+                Count = 200
             });
+
+            TwitterRateLimitStatus rateStatus = service.Response.RateLimitStatus;
+
+            if (currentTweets == null)
+            {
+                MessageBox.Show($"Couldn't find any tweets for this user. Rate limits remaining: {rateStatus.RemainingHits}");
+                return;
+            }
+
+            int tweetCount = currentTweets.Count();
+
+            Dispatcher.BeginInvoke(new Action(delegate
+            {
+                progressBar.Minimum = 0;
+                progressBar.Maximum = tweetCount;
+                progressBar.Value = 0;
+            }));
 
             foreach (var tweet in currentTweets)
             {
@@ -83,16 +127,33 @@ namespace Noam.NET
                 unitOfWork.Complete();
 
                 // DISPLAY
+                Dispatcher.BeginInvoke(new Action(delegate
+                {
+                    if (tweet.Text.StartsWith("RT "))
+                        OutputReTweet(tweet);
+                    else if (tweet.InReplyToStatusId.HasValue)
+                        OutputReplyTweet(tweet);
+                    else
+                        OutputNormalTweet(tweet);
 
-                OutputNormalTweet(tweet);
-
+                    progressBar.Value += 1;
+                }));
             }
+
+            Dispatcher.BeginInvoke(new Action(delegate
+            {
+                UpdateMainUserList();
+            }));
         }
 
         private void HandleMentions(TwitterStatus tweet)
         {
             foreach (TwitterMention mention in tweet.Entities.Mentions)
             {
+                // remove this to capture self-mentions
+                if (mention.ScreenName == tweet.User.ScreenName)
+                    continue;
+
                 User mentionedUser;
 
                 if (unitOfWork.Users.UserAlreadyExists(mention.Id, out mentionedUser) == false)
@@ -102,6 +163,9 @@ namespace Noam.NET
                         UserId = mention.Id,
                         ScreenName = mention.ScreenName
                     });
+
+                    if (mUser == null)
+                        continue;
 
                     mentionedUser = CreateUser(mUser);
 
@@ -115,6 +179,24 @@ namespace Noam.NET
                 };
 
                 unitOfWork.Users.AddUserMention(m);
+
+                Dispatcher.BeginInvoke(new Action(delegate
+                {
+                    if (mentionCounter.Keys.Contains(mention.ScreenName) == false)
+                    {
+                        mentionCounter.Add(mention.ScreenName, 1);
+                    }
+                    else
+                    {
+                        mentionCounter[mention.ScreenName] += 1;
+                    }
+
+                    // re-sort by value
+                    var sortedDictionary = mentionCounter.OrderByDescending(o => o.Value);
+                    mentionCounter = sortedDictionary.ToDictionary(pair => pair.Key, pair => pair.Value);
+
+                    mentionGrid.ItemsSource = mentionCounter;
+                }));
             }
         }
 
@@ -150,6 +232,7 @@ namespace Noam.NET
             User user = new User
             {
                 UserId = tu.Id,
+                FullName = tu.Name,
                 ScreenName = tu.ScreenName,
                 Description = tu.Description,
                 IsGeoEnabled = tu.IsGeoEnabled ?? false,
@@ -158,7 +241,9 @@ namespace Noam.NET
                 IsVerified = tu.IsVerified ?? false,
                 Language = tu.Language,
                 Timezone = tu.TimeZone,
-                Url = tu.Url
+                Url = tu.Url,
+                CreatedDate = tu.CreatedDate,
+                Location = tu.Location
             };
 
             return user;
@@ -240,9 +325,39 @@ namespace Noam.NET
             }
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        private async void Button_Click(object sender, RoutedEventArgs e)
         {
-            GetAllTweetsForUser(usernameTextBox.Text);
+            string username = usernameTextBox.Text;
+            await Task.Run(() => GetAllTweetsForUser(username));
+        }
+
+        private void CheckBox_Checked(object sender, RoutedEventArgs e)
+        {
+            UpdateMainUserList();
+        }
+
+        private void CheckBox_Unchecked(object sender, RoutedEventArgs e)
+        {
+            UpdateMainUserList();
+        }
+
+        private void userGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.AddedItems.Count == 0)
+                return;
+
+            UserViewModel user = (UserViewModel)e.AddedItems[0];
+
+            displayUserControl.SelectedUser = user;
+
+            userTweetGrid.ItemsSource = unitOfWork.Users.Get(user.Id).Tweets.OrderByDescending(o => o.CreatedDate).ToList();
+        }
+
+        private async void GetTWeetsForUser_Button_Click(object sender, RoutedEventArgs e)
+        {
+            UserViewModel user = ((FrameworkElement)sender).DataContext as UserViewModel;
+
+            await Task.Run(() => GetAllTweetsForUser(user.ScreenName));
         }
     }
 }

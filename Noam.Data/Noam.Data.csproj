@@ -90,6 +90,9 @@
     <Compile Include="User.cs">
       <DependentUpon>DataModel.tt</DependentUpon>
     </Compile>
+    <Compile Include="ViewModels\HashtagViewModel.cs" />
+    <Compile Include="ViewModels\TweetViewModel.cs" />
+    <Compile Include="ViewModels\UserViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <EntityDeploy Include="DataModel.edmx">

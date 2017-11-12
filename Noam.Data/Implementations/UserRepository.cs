@@ -17,7 +17,7 @@ namespace Noam.Data.Implementations
 
         public bool UserAlreadyExists(long userId, out User user)
         {
-            user = NoamContext.Users.Single(o => o.UserId == userId);
+            user = Get(userId);
             return (user == null) ? false : true;
         }
 

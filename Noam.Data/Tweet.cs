@@ -31,8 +31,8 @@ namespace Noam.Data
     
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<Mention> Mentions { get; set; }
-        public virtual User User { get; set; }
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2227:CollectionPropertiesShouldBeReadOnly")]
         public virtual ICollection<TweetHashtag> TweetHashtags { get; set; }
+        public virtual User User { get; set; }
     }
 }

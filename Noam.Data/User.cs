@@ -23,6 +23,7 @@ namespace Noam.Data
     
         public long UserId { get; set; }
         public string ScreenName { get; set; }
+        public string FullName { get; set; }
         public System.DateTime CreatedDate { get; set; }
         public string Description { get; set; }
         public bool IsGeoEnabled { get; set; }
